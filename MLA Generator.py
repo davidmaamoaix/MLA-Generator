@@ -22,7 +22,7 @@ def asciiCheck(content):
     return out
 
 def checkUpdate():
-    version='1.2.0'
+    version='1.2.5'
     url='https://raw.githubusercontent.com/davidmaamoaix/MLA-Generator/master/Version'
     try:
         html=urlopen(url)
