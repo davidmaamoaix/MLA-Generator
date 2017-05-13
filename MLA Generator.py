@@ -1,15 +1,28 @@
 #MLA Generator
+#David Ma
 
 import sys
 import webbrowser
 from tkinter import *
 from bs4 import BeautifulSoup
 from datetime import datetime
+from urllib.parse import quote
 from tkinter.messagebox import *
 from urllib.request import urlopen
 
+def asciiCheck(content):
+    out=''
+    for i in content:
+        try:
+            i.encode('ascii')
+        except Exception:
+            out=out+quote(i)
+        else:
+            out=out+i
+    return out
+
 def checkUpdate():
-    version='1.0.0'
+    version='1.2.0'
     url='https://raw.githubusercontent.com/davidmaamoaix/MLA-Generator/master/Version'
     try:
         html=urlopen(url)
@@ -53,7 +66,7 @@ def run():
     global urlEntry
     url=urlEntry.get()
     try:
-        html=urlopen(url)
+        html=urlopen(asciiCheck(url))
     except Exception:
         alert('Error: URL cannot be reached')
     bsObj=BeautifulSoup(html,'lxml')
@@ -93,13 +106,21 @@ def run():
 
     #Created Date
     createdDate=''
+    try:
+        if 'wikipedia.org' in url:
+            href=bsObj.find('a',{'accesskey':'h'})
+            historyPage=urlopen(url.split('//')[0]+'//'+url.split('//')[1].split('/')[0]+href.attrs['href'])
+            historyObj=BeautifulSoup(historyPage,'lxml')
+            createdDate=historyObj.find('a',{'class':'mw-changeslist-date'}).text.split(', ')[1]+', '
+    except Exception:
+        createdDate=''
 
     #Accessed Date
     month=['January','Febuary','March','April','May','June','July','August','September','October','November','December']
     accessedDate=str(datetime.now().day)+' '+str(month[datetime.now().month-1])+' '+str(datetime.now().year)
 
     #Generate New URL
-    url=url.split('//')[1]
+    url=url.split('//')[1].replace('www.','')
     
     alert(articleTitle+websiteTitle+sponsor+createdDate+url+'. Accessed '+accessedDate,'Program Finished')
 
